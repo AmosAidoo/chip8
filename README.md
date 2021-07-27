@@ -9,7 +9,7 @@ In [Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-c
 - DXYN (display/draw)
 to be able to run the **IBM logo program**. The program prints out the IBM logo and enters into an infinite loop
 
-![Screenshot](capture.png)
+![Screenshot](capture.PNG)
 
 ## Resourses that helped
 1. [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
