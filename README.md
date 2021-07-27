@@ -1,12 +1,14 @@
 # chip8
+### Work in progress...
 A CHIP-8 emulator in Javascript.
 In [Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/), a tip was to implement the following instructions first:
-- 00E0 (clear screen)
-- 1NNN (jump)
-- 6XNN (set register VX)
-- 7XNN (add value to register VX)
-- ANNN (set index register I)
-- DXYN (display/draw)
+- `00E0` (clear screen)
+- `1NNN` (jump)
+- `6XNN` (set register VX)
+- `7XNN` (add value to register VX)
+- `ANNN` (set index register I)
+- `DXYN` (display/draw)
+
 to be able to run the **IBM logo program**. The program prints out the IBM logo and enters into an infinite loop
 
 ![Screenshot](capture.PNG)
