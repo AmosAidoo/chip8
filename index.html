@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div>
+        <h1>A CHIP-8 EMULATOR</h1>
+        <div id="container">
+            <div id="screen"></div>
+
+            <div style="margin-left: 20px; background-color: #f1f1f1; padding: 5px">
+                <h3 style="margin-top: -5px; margin-bottom: 0;">
+                    Registers
+                </h3>
+
+                <div style="display: flex; flex-direction: row;">
+                    <div>
+                        <p>PC:</p>
+                        <p>I:</p>
+                        <p>V0:</p>
+                        <p>V1:</p>
+                        <p>V2:</p>
+                        <p>V3:</p>
+                        <p>V4:</p>
+                        <p>V5:</p>
+                        <p>V6:</p>
+                    </div>
+
+                    <div style="margin-left: 50px;">
+                        <p>V7:</p>
+                        <p>V8:</p>
+                        <p>V9:</p>
+                        <p>VA:</p>
+                        <p>VB:</p>
+                        <p>VC:</p>
+                        <p>VD:</p>
+                        <p>VE:</p>
+                        <p>VF:</p>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div style="margin-left: 80px; background-color: #f1f1f1; padding: 5px">
+                <h3 style="margin-top: -5px; margin-bottom: 0;">Memory Dump</h3>
+                <div style="overflow-y: scroll; height: 310px;">
+                    0000: A2
+                </div>
+            </div>
+        </div>
+
+        <div id="under">
+            <h3>Load Program</h3>
+        </div>
+    </div>
+    
+    <script src="p5.js"></script>
+    <script src="chip8.js"></script>
+</body>
+</html>
