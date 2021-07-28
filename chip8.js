@@ -17,6 +17,7 @@
 const MEMORY_LIMIT = 4096
 const SCREEN_WIDTH = 640
 const SCREEN_HEIGHT = 320
+const FONT_ADDRESS_START = 0x50
 let memory = new Array(MEMORY_LIMIT)
 let stack = []
 let display = []
@@ -120,9 +121,25 @@ function draw() {
     if (program) {
         loadProgram(program)
         emulate()
+        startDelayTimer()
+        startSoundTimer()
         noLoop()
     }
     
+}
+
+function startSoundTimer() {
+    setInterval(() => {
+        if (soundTimer > 0) 
+            soundTimer--
+    }, 1000/ 60)
+}
+
+function startDelayTimer() {
+    setInterval(() => {
+        if (delayTimer > 0) 
+            delayTimer--
+    }, 1000/ 60)
 }
 
 function loadProgram(program) {
@@ -139,6 +156,7 @@ function emulate() {
         console.log("Instruction not identified")
         clearInterval(id)
     }
+
     intervalId = setInterval(() => {
         // Run the fetch-decode-execute cycle at 700 instructions per second
         console.log("Initial PC = ", PC)
@@ -153,7 +171,7 @@ function emulate() {
         const NNN = instruction & 0x0fff // 12-bit immediate memory address
 
         console.log("Current instruction", instruction.toString(16))
-        console.log("Kind = ", kind)
+        console.log("Kind = ", kind.toString(16))
 
         // Decode and Execute
         switch (kind) {
@@ -168,6 +186,11 @@ function emulate() {
                                         clearScreen()
                                         break
                                     }
+
+                                    default: {
+                                        invalidInstruction(intervalId)
+                                    }
+
                                 }
                                 break
                             }
@@ -196,6 +219,24 @@ function emulate() {
                 break
             }
 
+            case 0x3: {
+                if (V[X] === NN)
+                    PC += 2
+                break
+            }
+
+            case 0x4: {
+                if (V[X] !== NN) 
+                    PC += 2
+                break
+            }
+
+            case 0x5: {
+                if (V[X] === V[Y])
+                    PC += 2
+                break
+            }
+
             case 0x6: {
                 // Set register VX to the value NN
                 console.log()
@@ -205,8 +246,83 @@ function emulate() {
 
             case 0x7: {
                 // Add NN to VX
-                V[X] += NN
+                V[X] = (V[X] + NN) & 0xff
                 break
+            }
+
+            case 0x8: {
+                
+                switch (N) {
+                    case 0x0: {
+                        V[X] = V[Y] & 0xff
+                        V[X] = V[Y]
+                        break
+                    }
+                    
+                    case 0x1: {
+                        V[X] = V[X] | V[Y]
+                        break
+                    }
+
+                    case 0x2: {
+                        V[X] = V[X] & V[Y]
+                        break
+                    }
+
+                    case 0x3: {
+                        V[X] = V[X] ^ V[Y]
+                        break
+                    }
+
+                    case 0x4: {
+                        V[X] = V[X] + V[Y]
+
+                        // Check for overflow
+                        if ((V[X] >> 9) & 1)
+                            V[0xF] = 1
+                        else
+                            V[0xF] = 0
+
+                        V[X] &= 0xff
+                        break
+                    }
+
+                    case 0x5: {
+                        V[0xF] = (V[Y] > V[X]) ? 1 : 0
+                        V[X] = (V[X] - V[Y]) & 0xff
+                        break
+                    }
+
+                    case 0x6: {
+                        V[X] >>= 1
+                        break
+                    }
+
+                    case 0xE: {
+                        V[X] = (V[X] << 1) & 0xff
+                        break
+                    }
+
+                    default: {
+                        invalidInstruction(intervalId)
+                    }
+                }
+                break
+            }
+
+            case 0x9: {
+                switch(N) {
+                    case 0x0: {
+                        if (V[X] !== V[Y])
+                            PC += 2
+                        break
+                    }
+
+                    default: {
+                        invalidInstruction(intervalId)
+                    }
+                }
+                
             }
 
             case 0xA: {
@@ -241,8 +357,60 @@ function emulate() {
                 break
             }
 
+            case 0xF: {
+                switch(NN) {
+                    case 0x07: {
+                        V[X] = delayTimer
+                        break
+                    }
+
+                    case 0x15: {
+                        delayTimer = V[X]
+                        break
+                    }
+
+                    case 0x18: {
+                        soundTimer = V[X]
+                        break
+                    }
+
+                    case 0x1E: {
+                        I = (I + V[X]) & 0xfff
+                        break
+                    }
+
+                    case 0x33: {
+                        memory[I] = (Math.floor(V[X] / 100) % 10) & 0xff
+                        memory[I+1] = (Math.floor(V[X] / 10) % 10) & 0xff
+                        memory[I+2] = (V[X] % 10) & 0xff
+                        break
+                    }
+
+                    case 0x55: {
+                        for (let i = 0; i <= X; i++) {
+                            memory[I+i] = V[i]
+                        }
+                        break
+                    }
+
+                    case 0x65: {
+                        for (let i = 0; i <= X; i++) {
+                            V[i] = memory[I+i]
+                        }
+                        break
+                    }
+
+                    default: {
+                        invalidInstruction(intervalId)
+                        break
+                    }
+                }
+                break
+            }
+
             default: {
                 invalidInstruction(intervalId)
+                break
             }
 
         }
