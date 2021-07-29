@@ -22,6 +22,27 @@ let memory = new Array(MEMORY_LIMIT)
 let stack = []
 let display = []
 let program = null
+let hasPressedKey = false
+let pressedKeyCode
+
+const keys = {
+    KEY_0: 88,
+    KEY_1: 49,
+    KEY_2: 50,
+    KEY_3: 51,
+    KEY_4: 81,
+    KEY_5: 87,
+    KEY_6: 69,
+    KEY_7: 65,
+    KEY_8: 83,
+    KEY_9: 68,
+    KEY_A: 90,
+    KEY_B: 67,
+    KEY_C: 52,
+    KEY_D: 82,
+    KEY_E: 70,
+    KEY_F: 86
+}
 
 // Program counter and index register
 let PC, I
@@ -33,16 +54,16 @@ let delayTimer = 0
 let soundTimer = 0
 
 // Set fonts
-memory[0x50] = 0xF0, memory[0x51] = 0x90, memory[0x52] = 0x90, memory[0x53] = 0x90, memory[0x54] = 0xF0 // 0
-memory[0x55] = 0x20, memory[0x56] = 0x60, memory[0x57] = 0x20, memory[0x58] = 0x20, memory[0x59] = 0x70 // 1 
-memory[0x60] = 0xF0, memory[0x61] = 0x10, memory[0x62] = 0xF0, memory[0x63] = 0x80, memory[0x64] = 0xF0 // 2
-memory[0x65] = 0xF0, memory[0x66] = 0x10, memory[0x67] = 0xF0, memory[0x68] = 0x10, memory[0x69] = 0xF0 // 3
-memory[0x70] = 0x90, memory[0x71] = 0x90, memory[0x72] = 0xF0, memory[0x73] = 0x10, memory[0x74] = 0x10 // 4
-memory[0x75] = 0xF0, memory[0x76] = 0x80, memory[0x77] = 0xF0, memory[0x78] = 0x10, memory[0x79] = 0xF0 // 5
-memory[0x80] = 0xF0, memory[0x81] = 0x80, memory[0x82] = 0xF0, memory[0x83] = 0x90, memory[0x84] = 0xF0 // 6
-memory[0x85] = 0xF0, memory[0x86] = 0x10, memory[0x87] = 0x20, memory[0x88] = 0x40, memory[0x89] = 0x40 // 7
-memory[0x90] = 0xF0, memory[0x91] = 0x90, memory[0x92] = 0xF0, memory[0x93] = 0x90, memory[0x94] = 0xF0 // 8
-memory[0x95] = 0xF0, memory[0x96] = 0x90, memory[0x97] = 0xF0, memory[0x98] = 0x10, memory[0x99] = 0xF0 // 9
+memory[FONT_ADDRESS_START + 0 ] = 0xF0, memory[0x51] = 0x90, memory[0x52] = 0x90, memory[0x53] = 0x90, memory[0x54] = 0xF0 // 0
+memory[FONT_ADDRESS_START + 5 ] = 0x20, memory[0x56] = 0x60, memory[0x57] = 0x20, memory[0x58] = 0x20, memory[0x59] = 0x70 // 1 
+memory[FONT_ADDRESS_START + 10] = 0xF0, memory[0x61] = 0x10, memory[0x62] = 0xF0, memory[0x63] = 0x80, memory[0x64] = 0xF0 // 2
+memory[FONT_ADDRESS_START + 15] = 0xF0, memory[0x66] = 0x10, memory[0x67] = 0xF0, memory[0x68] = 0x10, memory[0x69] = 0xF0 // 3
+memory[FONT_ADDRESS_START + 20] = 0x90, memory[0x71] = 0x90, memory[0x72] = 0xF0, memory[0x73] = 0x10, memory[0x74] = 0x10 // 4
+memory[FONT_ADDRESS_START + 25] = 0xF0, memory[0x76] = 0x80, memory[0x77] = 0xF0, memory[0x78] = 0x10, memory[0x79] = 0xF0 // 5
+memory[FONT_ADDRESS_START + 30] = 0xF0, memory[0x81] = 0x80, memory[0x82] = 0xF0, memory[0x83] = 0x90, memory[0x84] = 0xF0 // 6
+memory[FONT_ADDRESS_START + 35] = 0xF0, memory[0x86] = 0x10, memory[0x87] = 0x20, memory[0x88] = 0x40, memory[0x89] = 0x40 // 7
+memory[FONT_ADDRESS_START + 40] = 0xF0, memory[0x91] = 0x90, memory[0x92] = 0xF0, memory[0x93] = 0x90, memory[0x94] = 0xF0 // 8
+memory[FONT_ADDRESS_START + 45] = 0xF0, memory[0x96] = 0x90, memory[0x97] = 0xF0, memory[0x98] = 0x10, memory[0x99] = 0xF0 // 9
 
 function clearScreen() {
     for (let y = 0; y < SCREEN_HEIGHT / 10; y++){
@@ -128,6 +149,13 @@ function draw() {
     
 }
 
+
+function keyPressed() {
+    hasPressedKey = true
+    pressedKeyCode = keyCode
+}
+
+
 function startSoundTimer() {
     setInterval(() => {
         if (soundTimer > 0) 
@@ -176,34 +204,20 @@ function emulate() {
         // Decode and Execute
         switch (kind) {
             case 0x0: {
-                switch (X) {
-                    case 0x0: {
-                        switch (Y) {
-                            case 0xE: {
-                                switch (N) {
-                                    case 0x0: {
-                                        // Clear screen
-                                        clearScreen()
-                                        break
-                                    }
-
-                                    default: {
-                                        invalidInstruction(intervalId)
-                                    }
-
-                                }
-                                break
-                            }
-
-                            default: {
-                                invalidInstruction(intervalId)
-                            }
-                        }
+                switch (NN) {
+                    case 0xE0: {
+                        clearScreen()
                         break
                     }
 
-                    default: {
-                        invalidInstruction(intervalId)
+                    case 0xEE: {
+                        let ret = stack.pop()
+                        if (ret == undefined) {
+                            console.log("Stack underflow")
+                            clearInterval(intervalId)
+                        }
+                        PC = ret
+                        break
                     }
                 }
                 break
@@ -216,6 +230,8 @@ function emulate() {
             }
 
             case 0x2: {
+                stack.push(PC)
+                PC = NNN
                 break
             }
 
@@ -287,8 +303,9 @@ function emulate() {
                         break
                     }
 
-                    case 0x5: {
-                        V[0xF] = (V[Y] > V[X]) ? 1 : 0
+                    case 0x5:
+                    case 0x7: {
+                        V[0xF] = (V[Y] > V[X]) ? 0 : 1
                         V[X] = (V[X] - V[Y]) & 0xff
                         break
                     }
@@ -327,9 +344,19 @@ function emulate() {
 
             case 0xA: {
                 // Set index
-                I = NNN
+                I = NNN & 0xfff
                 break
             }
+
+            case 0xB: {
+                PC = (V[0] + NNN) & 0xfff
+                break
+            }
+
+            case 0xC: {
+                V[X] = Math.floor(Math.random() * 256) & NN
+                break
+            } 
 
             case 0xD: {
                 let x = V[X] % 64, y = V[Y] % 32
@@ -357,10 +384,51 @@ function emulate() {
                 break
             }
 
+            case 0xE: {
+                switch (NN) {
+                    case 0x9E: {
+                        if (hasPressedKey && pressedKeyCode == V[X])
+                            PC += 2
+                        break
+                    }
+
+                    case 0xA1: {
+                        if (hasPressedKey && !(pressedKeyCode == V[X]))
+                            PC += 2
+                        break
+                    }
+
+                    default: {
+                        invalidInstruction(intervalId)
+                        break
+                    }
+                }
+                break
+            }
+
             case 0xF: {
                 switch(NN) {
                     case 0x07: {
                         V[X] = delayTimer
+                        break
+                    }
+
+                    case 0x0A: {
+                        console.log("Waiting for key press")
+                        let flag = true
+                        if (hasPressedKey) {
+                            console.log("Key is pressed")
+                            let current_key = 0
+                            for (let a in keys) {
+                                if (keyCode == keys[a]) {
+                                    V[X] = current_key
+                                    flag = false
+                                    break
+                                }
+                                current_key++
+                            }
+                        }
+                        console.log("End of key press")
                         break
                     }
 
@@ -376,6 +444,11 @@ function emulate() {
 
                     case 0x1E: {
                         I = (I + V[X]) & 0xfff
+                        break
+                    }
+
+                    case 0x29: {
+                        I = FONT_ADDRESS_START + V[X] * 5
                         break
                     }
 
