@@ -1,5 +1,5 @@
 # chip8
-A CHIP-8 emulator in Javascript and p5.js(a great Javascript canvas library). Because of its simplicity, it is usually recommened as a first emulator one should try before going on to build complicated ones (though it is not necessary). I thought it would be fun so I decided to take on this project. It was cool and I totally enjoyed the process.
+A CHIP-8 emulator in Javascript and p5.js(a great Javascript canvas library). Because of its simplicity, it is usually recommened as a first emulator one should try before going on to build complicated ones (though it is not necessary). I thought it would be fun so I decided to take on this project. It was cool and I totally enjoyed the process. You can even play pong and tetris on it :relieved: . Try it out.
 Visit ![https://amosaidoo.com/chip8](https://amosaidoo.com/chip8) to see the emulator in action.
 
 # Opcodes
