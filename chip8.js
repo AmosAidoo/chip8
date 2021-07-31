@@ -26,23 +26,25 @@ let hasPressedKey = false
 let pressedKeyCode
 
 const keys = {
-    KEY_0: 88,
-    KEY_1: 49,
-    KEY_2: 50,
-    KEY_3: 51,
-    KEY_4: 81,
-    KEY_5: 87,
-    KEY_6: 69,
-    KEY_7: 65,
-    KEY_8: 83,
-    KEY_9: 68,
-    KEY_A: 90,
-    KEY_B: 67,
-    KEY_C: 52,
-    KEY_D: 82,
-    KEY_E: 70,
-    KEY_F: 86
+    0x0: 88,
+    0x1: 49,
+    0x2: 50,
+    0x3: 51,
+    0x4: 81,
+    0x5: 87,
+    0x6: 69,
+    0x7: 65,
+    0x8: 83,
+    0x9: 68,
+    0xA: 90,
+    0xB: 67,
+    0xC: 52,
+    0xD: 82,
+    0xE: 70,
+    0xF: 86
 }
+
+let key_pressed = {}
 
 // Program counter and index register
 let PC, I
@@ -119,27 +121,16 @@ function setup() {
         for (let x = 0; x < SCREEN_WIDTH / 10; x++)
             display[y][x] = 0
     }
-
-    // IBM Logo Test Program. This program prints the IBM Logo and enters an infinite loop
-    // loadProgram(new Uint8Array([
-    //     0x00, 0xe0, 0xa2, 0x2a, 0x60, 0x0c, 0x61, 0x08,    0xd0, 0x1f, 0x70, 0x09, 0xa2, 0x39, 0xd0, 0x1f, 
-    //     0xa2, 0x48, 0x70, 0x08, 0xd0, 0x1f, 0x70, 0x04,    0xa2, 0x57, 0xd0, 0x1f, 0x70, 0x08, 0xa2, 0x66, 
-    //     0xd0, 0x1f, 0x70, 0x08, 0xa2, 0x75, 0xd0, 0x1f,    0x12, 0x28, 0xff, 0x00, 0xff, 0x00, 0x3c, 0x00, 
-    //     0x3c, 0x00, 0x3c, 0x00, 0x3c, 0x00, 0xff, 0x00,    0xff, 0xff, 0x00, 0xff, 0x00, 0x38, 0x00, 0x3f, 
-    //     0x00, 0x3f, 0x00, 0x38, 0x00, 0xff, 0x00, 0xff,    0x80, 0x00, 0xe0, 0x00, 0xe0, 0x00, 0x80, 0x00,
-    //     0x80, 0x00, 0xe0, 0x00, 0xe0, 0x00, 0x80, 0xf8,    0x00, 0xfc, 0x00, 0x3e, 0x00, 0x3f, 0x00, 0x3b, 
-    //     0x00, 0x39, 0x00, 0xf8, 0x00, 0xf8, 0x03, 0x00,    0x07, 0x00, 0x0f, 0x00, 0xbf, 0x00, 0xfb, 0x00, 
-    //     0xf3, 0x00, 0xe3, 0x00, 0x43, 0xe0, 0x00, 0xe0,    0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80,
-    //     0x00, 0xe0, 0x00, 0xe0
-    // ]))
+    clearScreen()
+    displayScreen()
 }
 
 function draw() {
-    noStroke()
-    clearScreen()
-    displayScreen()
-    
+
     if (program) {
+        noStroke()
+        clearScreen()
+        displayScreen()
         loadProgram(program)
         emulate()
         startDelayTimer()
@@ -151,8 +142,19 @@ function draw() {
 
 
 function keyPressed() {
-    hasPressedKey = true
-    pressedKeyCode = keyCode
+    for (let k = 0x0; k <= 0xF; k++) {
+        if (keys[k] == keyCode) {
+            key_pressed[k] = true
+        }
+    }
+}
+
+function keyReleased() {
+    for (let k = 0x0; k <= 0xF; k++) {
+        if (keys[k] == keyCode) {
+            key_pressed[k] = false
+        }
+    }
 }
 
 
@@ -387,15 +389,39 @@ function emulate() {
             case 0xE: {
                 switch (NN) {
                     case 0x9E: {
-                        if (hasPressedKey && pressedKeyCode == V[X])
+                        console.log("Waiting for keypress")
+                        // clearInterval(intervalId)
+                        if (key_pressed[V[X]]) {
                             PC += 2
+                        }
                         break
+                        // let pollingId = setInterval(() => {
+                        //     if (hasPressedKey) {
+                        //         if (hasPressedKey && pressedKeyCode == V[X])
+                        //             PC += 2
+                        //         hasPressedKey = false
+                        //         clearInterval(pollingId)
+                        //         emulate()
+                        //     }
+                        // }, 100)
                     }
 
                     case 0xA1: {
-                        if (hasPressedKey && !(pressedKeyCode == V[X]))
+                        console.log("Waiting for keypress")
+                        // clearInterval(intervalId)
+                        if (!key_pressed[V[X]]) {
                             PC += 2
+                        }
                         break
+                        // let pollingId = setInterval(() => {
+                        //     if (hasPressedKey) {
+                        //         if (hasPressedKey && !(pressedKeyCode == V[X]))
+                        //             PC += 2
+                        //         hasPressedKey = false
+                        //         clearInterval(pollingId)
+                        //         emulate()
+                        //     }
+                        // }, 100)
                     }
 
                     default: {
@@ -415,21 +441,20 @@ function emulate() {
 
                     case 0x0A: {
                         console.log("Waiting for key press")
-                        let flag = true
-                        if (hasPressedKey) {
-                            console.log("Key is pressed")
-                            let current_key = 0
-                            for (let a in keys) {
-                                if (keyCode == keys[a]) {
-                                    V[X] = current_key
-                                    flag = false
-                                    break
+                        clearInterval(intervalId)
+                        
+                        let pollingId = setInterval(() => {
+                            console.log("Polling for keypress event")
+
+                            for (let k = 0x0; k <= 0xF; k++) {
+                                if (key_pressed[k] == true) {
+                                    V[X] = k
+                                    clearInterval(pollingId)
+                                    emulate()
                                 }
-                                current_key++
                             }
-                        }
-                        console.log("End of key press")
-                        break
+                        }, 1000/60)
+                           
                     }
 
                     case 0x15: {
