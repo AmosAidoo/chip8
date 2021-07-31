@@ -189,10 +189,11 @@ function emulate() {
 
     intervalId = setInterval(() => {
         // Run the fetch-decode-execute cycle at 700 instructions per second
-        console.log("Initial PC = ", PC)
+        console.log("PC is at = ", PC)
         // Fetch
         let instruction = (memory[PC] << 8) | memory[PC+1]
         PC += 2
+
         const kind = (instruction >> 12) & 0xf // kind of instruction
         const X = (instruction >> 8) & 0xf // V0 - VF
         const Y = (instruction >> 4) & 0xf // V0 - VF
@@ -408,20 +409,10 @@ function emulate() {
 
                     case 0xA1: {
                         console.log("Waiting for keypress")
-                        // clearInterval(intervalId)
                         if (!key_pressed[V[X]]) {
                             PC += 2
                         }
                         break
-                        // let pollingId = setInterval(() => {
-                        //     if (hasPressedKey) {
-                        //         if (hasPressedKey && !(pressedKeyCode == V[X]))
-                        //             PC += 2
-                        //         hasPressedKey = false
-                        //         clearInterval(pollingId)
-                        //         emulate()
-                        //     }
-                        // }, 100)
                     }
 
                     default: {
@@ -513,4 +504,13 @@ function emulate() {
 
         }
     }, 1000 / 700 )
+}
+
+
+function displayMemoryState() {
+    // To be implemented
+}
+
+function displayRegisterState() {
+    // To be implemented
 }
