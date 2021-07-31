@@ -1,18 +1,18 @@
 # chip8
 A CHIP-8 emulator in Javascript and p5.js(a great Javascript canvas library). Because of its simplicity, it is usually recommened as a first emulator one should try before going on to build complicated ones (though it is not necessary). I thought it would be fun so I decided to take on this project. It was cool and I totally enjoyed the process. You can even play pong and tetris on it :relieved: . Try it out.
-Visit ![https://amosaidoo.com/chip8](https://amosaidoo.com/chip8) to see the emulator in action.
+Visit [https://amosaidoo.com/chip8](https://amosaidoo.com/chip8) to see the emulator in action.
 
 # Opcodes
 *CHIP-8 has 35 opcodes, which are all two bytes long and stored big-endian.*
-`NNN`: address
-`NN`: 8-bit constant
-`N`: 4-bit constant
-`X` and `Y`: 4-bit register identifier
-`PC` : Program Counter
-`I` : 16bit register (For memory address) (Similar to void pointer);
-`VN`: One of the 16 available variables. N may be 0 to F (hexadecimal)
+`NNN`: address <br/>
+`NN`: 8-bit constant <br/>
+`N`: 4-bit constant <br/>
+`X` and `Y`: 4-bit register identifier <br/>
+`PC` : Program Counter <br/>
+`I` : 16bit register (For memory address) (Similar to void pointer) <br/>
+`VN`: One of the 16 available variables. N may be 0 to F (hexadecimal)<br/>
 
-Please check the chip-8 [wikipedia page](https://en.wikipedia.org/wiki/CHIP-8) for the meaning of the opcodes
+Please check the chip-8 [wikipedia page](https://en.wikipedia.org/wiki/CHIP-8) for the meaning of the opcodes.
 
 | Opcode | Implemented        |
 |--------|--------------------|
